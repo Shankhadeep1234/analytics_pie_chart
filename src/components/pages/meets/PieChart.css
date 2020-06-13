@@ -1,0 +1,43 @@
+.chart-filter {
+  display: flex;
+  padding: 10px 10px;
+}
+.chart-filter .chart-filter-items {
+  flex: 1;
+  display: flex;
+}
+
+.chart-filter .chart-filter-items .filter > label {
+  display: block;
+  text-align: left;
+}
+.chart-filter .chart-filter-items:first-child {
+  flex: 2;
+  margin-right: 20px;
+}
+.chart-filter .chart-filter-items .filter {
+  flex: 1;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 20px;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.chart-items {
+  float: left;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.chart-item-full-width {
+  width: 100%;
+}
+
+.chart-items .chartjs-render-monitor {
+  margin: 0 auto;
+}

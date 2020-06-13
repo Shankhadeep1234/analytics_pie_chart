@@ -2,12 +2,14 @@
 import React, { Component } from "react";
 import map from "lodash/map";
 import DatePicker from "react-date-picker";
-import Select from "react-select";
+import Select from "react-dropdown-select";
+import addDays from "date-fns/addDays";
 import "./Meets.css";
 import "./PieChart.css";
 import PieChart from "./PieChart";
-import { getData } from "../../../services/analytics";
+import { getData, getRooms } from "../../../services/analytics";
 
+const NO_OF_DAYS = 15;
 class Meets extends Component {
   constructor(props) {
     super(props);
@@ -17,17 +19,24 @@ class Meets extends Component {
     analyticsData: [],
     filterBy: [],
     rooms: [{ value: "all", label: "All Rooms" }],
-    usertypes: [{ value: 1, label: "default" }],
+    usertypes: [{ value: 1, label: "Teacher" }],
+    start_date: new Date(),
+    end_date: addDays(new Date(), NO_OF_DAYS),
   };
 
   async componentDidMount() {
-    const { data } = await getData("sample_response_browser_os.json");
-    const filters = data.filterd_by;
-    delete data.filterd_by;
+    // const { data } = await getData("sample_response_browser_os.json");
+    // const filters = data.filterd_by;
+    // delete data.filterd_by;
 
+    // this.setState({
+    //   analyticsData: this.formatRespinseData(data),
+    //   filterBy: filters,
+    // });
+
+    const { data } = await getRooms();
     this.setState({
-      analyticsData: this.formatRespinseData(data),
-      filterBy: filters,
+      rooms: this.formatRooms(data.rooms),
     });
   }
 
@@ -88,20 +97,57 @@ class Meets extends Component {
     return output;
   };
 
-  _onSelect = (field) => () => {
-    console.log(field);
+  formatRooms = (input) => {
+    return map(input, (value, key) => ({
+      data: value,
+      label: value.room_name,
+      value: value.room_name,
+    }));
   };
 
+  _onSelect = (field) => (value) => {
+    // this.setState({
+    //   [field]: value,
+    // });
+  };
+
+  _onDateChnage = (field) => (date) => {
+    this.setState({
+      [field]: date,
+      [field === "start_date" ? "end_date" : "start_date"]: addDays(
+        date,
+        NO_OF_DAYS
+      ),
+    });
+  };
+
+  customItemRenderer = ({ item, itemIndex, props, state, methods }) => (
+    <span
+      className="dropdown-select-item"
+      title={`${item.data.teacher_name} | ${item.data.subject}`}
+      onClick={() => methods.addItem(item)}
+    >
+      {item.label}
+    </span>
+  );
+
   render() {
-    const { analyticsData, rooms, usertypes } = this.state;
+    const {
+      analyticsData,
+      rooms,
+      usertypes,
+      start_date,
+      end_date,
+    } = this.state;
     return (
       <div className="container text-center Meets clearfix">
         <h1>Meets Analytics</h1>
         <div className="chart-filter">
           <div className="chart-filter-items">
-            <div className="filter">
+            <div className="filter" onClick={() => console.log("ok")}>
               <label>Fiter Rooms</label>
               <Select
+                itemRenderer={this.customItemRenderer}
                 value={rooms[0]}
                 options={rooms}
                 placeholder="Fiter by Rooms"
@@ -112,7 +158,7 @@ class Meets extends Component {
               <label>Fiter UserType</label>
               <Select
                 onChange={this._onSelect("usertypes")}
-                value={usertypes[0]}
+                values={[1]}
                 options={usertypes}
                 placeholder="Fiter by UserType"
               />
@@ -121,11 +167,17 @@ class Meets extends Component {
           <div className="chart-filter-items">
             <div className="filter">
               <label>Start Date</label>
-              <DatePicker />
+              <DatePicker
+                value={start_date}
+                onChange={this._onDateChnage("start_date")}
+              />
             </div>
             <div className="filter">
               <label>End Date</label>
-              <DatePicker />
+              <DatePicker
+                value={end_date}
+                onChange={this._onDateChnage("end_date")}
+              />
             </div>
           </div>
         </div>

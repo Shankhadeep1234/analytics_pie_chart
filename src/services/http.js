@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "/",
+  baseURL: "https://dev.meets.openhouse.study/",
   timeout: 1000,
 });
